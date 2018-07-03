@@ -1,0 +1,29 @@
+{% extends "base.html" %} {% block title %}Sign Up{% endblock %} {% block content %}
+<div class="row justify-content-md-center">
+    
+    {% from "_formhelpers.html" import render_field %}
+    
+    <form class="col-md-6" action="{{ url_for('login') }}" method="POST">
+        
+        <h1 class="h2 mb-2 font-weight-normal">Login</h1>
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{render_field(form.email, class_="form-control")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.password, class_="form-control")}}
+        </div>
+        <input type="submit" class="btn btn-primary float-right" value="Login">
+    </form>
+</div>
+
+
+ 
+{% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+    <ul class=flashes>
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %} {% endwith %}
+{% endblock %}
