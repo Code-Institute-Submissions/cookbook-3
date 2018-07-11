@@ -3,9 +3,10 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 from flask import Flask, render_template, flash, redirect, url_for, session, request, g
 from flask_pymongo import PyMongo
+from bson.objectid import ObjectId
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
-from utils import SignUpForm, LoginForm
+from utils import SignUpForm, LoginForm, AddRecipe
 
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
@@ -62,7 +63,8 @@ def login():
         user = authors.find_one({"email": form.email.data}) 
         if user and check_password_hash(user['password'], form.password.data):
             session["logged_in"] = True
-            session["user"] = user["username"]
+            session["username"] = user["username"]
+            session["id"] = str(user["_id"])
             flash("You are now logged in")
             return redirect(url_for("dashboard"))
         else: 
@@ -82,10 +84,34 @@ def logout():
 def dashboard():
     return render_template("dashboard.html")
 
-@app.route("/addrecipe")
+@app.route("/addrecipe", methods=["GET", "POST"])
 @login_required
 def addrecipe():
-    return render_template("addrecipe.html")
+    form = AddRecipe()
+    # Allergens for dropdown menu (Jinja2)
+    allergens = mongo.db.allergens.find_one({"_id": ObjectId("5b2bc45ee7179a5892864417")})
+    recipes = mongo.db.recipes
+    if form.validate_on_submit():
+        recipe_exist = recipes.find_one({ "title": form.name.data.lower() })
+        
+        if not recipe_exist:
+            recipes.insert_one({
+                "title": form.name.data.lower(),
+                "author_name": session["username"].lower(),
+                "author_id": session["id"],
+                "img_url": form.image_url.data,
+                "cuisine": form.cuisine.data,
+                "servings": form.servings.data,
+                "ingredients": form.ingredients.data.split(","),
+                "allergens": request.form.getlist('allergens'),
+                "description": form.description.data.lower()
+            })
+            return redirect(url_for("dashboard"))
+        else:
+            flash("The recipe already exist. Please choose another one. ")
+            return render_template("addrecipe.html", form=form, allergens=allergens)
+    
+    return render_template("addrecipe.html", form=form, allergens=allergens)
     
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),

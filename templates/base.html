@@ -18,7 +18,7 @@
         <div class="row flex-nowrap justify-content-between align-items-center">
             <div class="col-4 pt-1">
                 {% if session.logged_in %}
-                <a class="d-none" href="{{ url_for('signup') }}">Sign Up</a>
+                <a class="p-2 text-muted" href="{{ url_for('addrecipe') }}">Add Recipe</a>
                 {% else %}
                 <a class="text-muted" href="{{ url_for('signup') }}">Sign Up</a>
                 {% endif %}
@@ -41,12 +41,6 @@
     {% if session.logged_in %}
     <div class="nav-scroller py-1 mb-2">
         <nav class="nav d-flex justify-content-between">
-            <a class="p-2 text-muted" href="#">World</a>
-            <a class="p-2 text-muted" href="#">U.S.</a>
-            <a class="p-2 text-muted" href="#">Technology</a>
-            <a class="p-2 text-muted" href="#">Design</a>
-            <a class="p-2 text-muted" href="#">Culture</a>
-            <a class="p-2 text-muted" href="{{ url_for('addrecipe') }}">Add Recipe</a>
         </nav>
     </div>
     {% endif %}

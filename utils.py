@@ -1,6 +1,24 @@
+import os
+from os.path import join, dirname
+from dotenv import load_dotenv
+from flask import Flask
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField
+from wtforms import StringField, PasswordField, SelectField, TextAreaField
+from wtforms.fields.html5 import URLField
 from wtforms.validators import InputRequired, Email, Length, EqualTo, ValidationError
+from flask_pymongo import PyMongo
+from bson.objectid import ObjectId
+
+dotenv_path = join(dirname(__file__), ".env")
+load_dotenv(dotenv_path)
+
+app = Flask(__name__)
+
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+app.config["MONGO_DBNAME"] = os.getenv("MONGO_DBNAME")
+app.config["MONGO_URI"] = os.getenv("MONGO_URI")
+
+mongo = PyMongo(app)
 
 class SignUpForm(FlaskForm):
     name = StringField('Full Name', 
@@ -34,4 +52,38 @@ class LoginForm(FlaskForm):
                         validators=[InputRequired(), 
                                     Length(min=4, max=12)],
                         render_kw={"placeholder": "Enter password"})
-    remember = BooleanField("Remember me")
+
+
+# Related to AddRecipe class / Generate to SON object
+def convert_to_son_obj(db):
+    list = []
+    
+    for key in db["names"]:
+        list.append((key, db["names"][key]))
+    
+    return list    
+    
+class AddRecipe(FlaskForm):
+    db_cuisines = mongo.db.cuisines
+    db_cuisines = db_cuisines.find_one({"_id": ObjectId("5b2bc74ae7179a5892864640")})
+    
+    cuisine = convert_to_son_obj(db_cuisines)
+    
+    name = StringField("Recipe Name", 
+                        validators=[InputRequired(),
+                        Length(min=4, max=100)])
+    image_url = URLField("Image URL", 
+                        validators=[InputRequired()],
+                        render_kw={"placeholder": "http://..."})
+    cuisine  = SelectField("Cuisines", choices=cuisine, 
+                            validators=[InputRequired()])
+    servings = SelectField("Servings", 
+                            choices=[("1", "1"), ("2", "2"), ("3", "3"), ("4", "4"), ("5", "5")], 
+                            validators=[InputRequired()])
+    ingredients = StringField("Ingredients", 
+                                validators=[InputRequired()],
+                                description="Separate ingredients with comma",
+                                render_kw={"placeholder": "white rice, chicken, olive oil"})
+    description = TextAreaField("Description", 
+                                validators=[InputRequired()])
+    

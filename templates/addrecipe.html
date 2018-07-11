@@ -1,9 +1,51 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %} Add Recipe {% endblock %} {% block content %}
 
-{% block title %} Add Recipe {% endblock %}
+<div class="row justify-content-md-center">
 
-{% block content %}
-           
+    {% from "_formhelpers.html" import render_field %}
 
+    <form class="col-md-6" action="{{ url_for('addrecipe') }}" method="POST">
+        <h1 class="h2 mb-2 font-weight-normal">Add your recipe</h1>
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{render_field(form.name, class="form-control")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.image_url, class="form-control")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.servings,  class="form-control")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.cuisine,  class="form-control")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.ingredients, class="form-control")}}
+        </div>
+        <div class="checkbox-title">
+            <p>Allergens</p>
+            {% for allergen in allergens.names %}
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="{{allergen}}" value="{{allergen}}" name="allergens">
+                <label class="form-check-label" for="{{allergen}}">{{allergen}}</label>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{render_field(form.description, class="form-control")}}
+        </div>
+        <input type="submit" class="btn btn-primary float-right" value="Add Recipe">
+    </form>
+    
+    
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+                <ul class=flashes>
+                    {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %} {% endwith %}
+            
+            
 
-{% endblock %}
+    {% endblock %}
