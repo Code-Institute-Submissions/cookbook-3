@@ -1,3 +1,14 @@
+.isDisabled {
+  color: #495057 !important;
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+  text-decoration: none !important;
+}
+
+.margin-sides-130 {
+  margin: 0 130px;
+}
+
 .blog-header {
   line-height: 1;
   border-bottom: 1px solid #e5e5e5;
@@ -10,5 +21,63 @@
   text-decoration: none;
 }
 
+.card-img-wrap {
+  width: 330px;
+  height: 200px;
+  overflow: hidden;
+}
+.card-img-wrap img {
+  height: 100%;
+}
+.card-title {
+  margin-top: 20px;
+}
 
+/**** Recipe Page ****/
+.recipe-wrapper{
+  text-align: center;
+}
 
+.recipe-servings-amount,
+.recipe-cuisine-name{
+  font-weight: 500;
+}
+.recipe-info-pad-item{
+  display: inline-block;
+}
+.recipe-info-pad-thumbs {
+  display: inline-block;
+}
+.recipe-info-pad-thumbs div:first-child {
+  margin-right: 10px;
+}
+
+.recipe-allergens-wrapper,
+.recipe-ingredients-wrapper,
+.recipe-instruction-wrapper
+{
+  text-align: left;
+}
+
+.recipe-author-wrapper{
+  margin-top: 10px;
+}
+.recipe-author-name {
+  padding-left: 10px;
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+.recipe-info-pad-thumbs .recipe-info-pad-text {
+  text-decoration: none;  
+}
+.recipe-info-pad-thumbs .recipe-info-pad-text i {
+  font-size: 1.5em;
+}
+
+.recipe-instruction-wrapper{
+  margin-top: 30px;
+}
+.recipe-subtitle-instruction {
+  text-align: center;
+}

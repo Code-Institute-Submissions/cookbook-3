@@ -6,7 +6,7 @@ from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
-from utils import SignUpForm, LoginForm, AddRecipe
+from utils import SignUpForm, LoginForm, AddRecipe, value_in_list, update_author_data_liked_recipe
 
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
@@ -31,7 +31,9 @@ def login_required(f):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    recipes = mongo.db.recipes.find()
+    
+    return render_template("index.html", recipes=recipes)
 
     
 @app.route('/signup', methods=['GET', 'POST'])
@@ -48,7 +50,9 @@ def signup():
                 "username": form.name.data,
                 "email": form.email.data,
                 "contry": form.origin.data,
-                "password": generate_password_hash(form.password.data)
+                "password": generate_password_hash(form.password.data),
+                "liked_recipe": [],
+                "disliked_recipe": []
             })
             return redirect(url_for('login'))
         
@@ -82,7 +86,8 @@ def logout():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html")
+    recipes = mongo.db.recipes.find()
+    return render_template("dashboard.html", recipes=recipes)
 
 @app.route("/addrecipe", methods=["GET", "POST"])
 @login_required
@@ -104,7 +109,10 @@ def addrecipe():
                 "servings": form.servings.data,
                 "ingredients": form.ingredients.data.split(","),
                 "allergens": request.form.getlist('allergens'),
-                "description": form.description.data.lower()
+                "description": form.description.data.lower(),
+                "likes": 0,
+                "dislikes": 0,
+                "users_liked": []
             })
             return redirect(url_for("dashboard"))
         else:
@@ -112,6 +120,80 @@ def addrecipe():
             return render_template("addrecipe.html", form=form, allergens=allergens)
     
     return render_template("addrecipe.html", form=form, allergens=allergens)
+    
+@app.route("/recipe/<recipe_id>")
+@login_required
+def recipe(recipe_id):
+    recipes = mongo.db.recipes
+    current_recipe = recipes.find_one({"_id": ObjectId(recipe_id)})
+    author = mongo.db.authors.find_one({"_id": ObjectId(session["id"])})
+    
+    return render_template("recipe.html", recipe=current_recipe, 
+                    liked=value_in_list(recipe_id, author["disliked_recipe"]), 
+                    disliked=value_in_list(recipe_id, author["liked_recipe"]))
+    
+@app.route("/recipe/like/<recipe_id>")
+@login_required
+def like(recipe_id):
+    recipes = mongo.db.recipes
+    current_recipe = recipes.find_one({"_id": ObjectId(recipe_id)})
+    
+    authors = mongo.db.authors
+    author = authors.find_one({"_id": ObjectId(session["id"])})
+    
+    if str(session["id"]) in current_recipe["users_liked"] and current_recipe["likes"] > 0:
+        update_author_data_liked_recipe(authors, session["id"], "$pull", recipe_id)
+        
+        recipes.update(
+            {"_id": ObjectId(recipe_id)},
+            { 
+                '$inc': {"likes": -1},
+                "$pull": {"users_liked": session["id"]}
+            })
+    else:
+        update_author_data_liked_recipe(authors, session["id"], "$addToSet", recipe_id)
+        
+        recipes.update(
+            {"_id": ObjectId(recipe_id)},
+            { 
+                '$inc': {"likes": 1},
+                "$addToSet": {"users_liked": session["id"]}
+            })
+        
+    return redirect(url_for("recipe", 
+                    recipe=current_recipe, recipe_id=recipe_id, 
+                    liked=value_in_list(recipe_id, author["disliked_recipe"]), 
+                    disliked=value_in_list(recipe_id, author["liked_recipe"])))
+
+@app.route("/recipe/dislike/<recipe_id>")
+@login_required
+def dislike(recipe_id):
+    recipes = mongo.db.recipes
+    current_recipe = recipes.find_one({"_id": ObjectId(recipe_id)})
+    authors = mongo.db.authors
+    author = authors.find_one({"_id": ObjectId(session["id"])})
+    
+    if str(session["id"]) in current_recipe["users_liked"] and current_recipe["dislikes"] > 0:
+        update_author_data_liked_recipe(authors, session["id"], "$pull", recipe_id)
+        
+        recipes.update(
+            {"_id": ObjectId(recipe_id)},
+            { 
+                '$inc': {"dislikes": -1},
+                "$pull": {"users_liked": session["id"]}
+            })
+    else:
+        update_author_data_liked_recipe(authors, session["id"], "$addToSet", recipe_id)
+        
+        recipes.update(
+            {"_id": ObjectId(recipe_id)},
+            { 
+                '$inc': {"dislikes": 1},
+                "$addToSet": {"users_liked": session["id"]}
+            })
+        
+    return redirect(url_for("recipe", recipe=current_recipe, recipe_id=recipe_id, disliked=value_in_list(recipe_id, author["liked_recipe"])))
+
     
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
