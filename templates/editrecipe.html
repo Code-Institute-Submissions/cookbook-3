@@ -68,7 +68,8 @@
             <textarea class="form-control" name="description">{{the_recipe.description}}</textarea>
         </div>
         <input type="submit" class="btn btn-success float-right" value="Edit Recipe">
-        <a href="{{ url_for('index') }}" class="btn btn-danger float-right cancel_edit">Cancel</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-danger float-right cancel_edit">Cancel</a>
+        <a href="{{ url_for('delete_recipe', recipe_id=the_recipe._id) }}" class="btn btn-outline-danger float-left cancel_edit">Delete Recipe</a>
     </form>
     
 </div>

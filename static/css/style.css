@@ -9,6 +9,10 @@
   margin: 0 130px;
 }
 
+.index-content {
+  margin-top: 15px;
+}
+
 .blog-header {
   line-height: 1;
   border-bottom: 1px solid #e5e5e5;
@@ -24,12 +28,10 @@
 .card-body {
   width: 70%;
 }
-
 .card-body-thumbs {
   float: right;
   color: #909090;
 }
-
 .card-body-thumbs i:first-child {
   margin-right: 5px;
 }

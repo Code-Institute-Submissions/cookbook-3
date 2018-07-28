@@ -25,7 +25,11 @@
                 {% endif %}
             </div>
             <div class="col-4 text-center">
+                {% if session.logged_in %}
+                <a class="blog-header-logo text-dark" href="{{ url_for('dashboard') }}">CookBook</a>
+                {% else %}
                 <a class="blog-header-logo text-dark" href="{{ url_for('index') }}">CookBook</a>
+                {% endif %}
             </div>
             <div class="col-4 d-flex justify-content-end align-items-center">
                 {% if session.logged_in %}

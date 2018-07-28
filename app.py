@@ -32,8 +32,21 @@ def login_required(f):
 @app.route("/")
 def index():
     recipes = mongo.db.recipes.find()
-    return render_template("index.html", recipes=recipes, author_id=session["id"])
+    allergens = mongo.db.allergens.find_one({"_id": ObjectId("5b2bc45ee7179a5892864417")})
+    cuisines = mongo.db.cuisines.find_one({"_id": ObjectId("5b2bc74ae7179a5892864640")})
+    
+    return render_template("index.html", recipes=recipes,
+                            allergens=allergens, cuisines=cuisines)
 
+
+@app.route("/dashboard")
+def dashboard():
+    recipes = mongo.db.recipes.find()
+    allergens = mongo.db.allergens.find_one({"_id": ObjectId("5b2bc45ee7179a5892864417")})
+    cuisines = mongo.db.cuisines.find_one({"_id": ObjectId("5b2bc74ae7179a5892864640")})
+    
+    return render_template("dashboard.html", recipes=recipes, author_id=session["id"],
+                            allergens=allergens, cuisines=cuisines)
     
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -62,6 +75,8 @@ def signup():
 def login():
     form = LoginForm()
     authors = mongo.db.authors
+    allergens = mongo.db.allergens.find_one({"_id": ObjectId("5b2bc45ee7179a5892864417")})
+    cuisines = mongo.db.cuisines.find_one({"_id": ObjectId("5b2bc74ae7179a5892864640")})
     if form.validate_on_submit():
         user = authors.find_one({"email": form.email.data}) 
         if user and check_password_hash(user['password'], form.password.data):
@@ -69,7 +84,8 @@ def login():
             session["username"] = user["username"]
             session["id"] = str(user["_id"])
             flash("You are now logged in")
-            return redirect(url_for("index", author_id=session["id"]))
+            return redirect(url_for("dashboard", author_id=session["id"], allergens=allergens,
+                                    cuisines=cuisines))
         else: 
             flash("Wrong username or password")
             return render_template("login.html", form=form)
@@ -80,7 +96,10 @@ def login():
 @login_required
 def logout():
     session.clear()
-    return render_template("index.html", author_id=session["id"])
+    allergens = mongo.db.allergens.find_one({"_id": ObjectId("5b2bc45ee7179a5892864417")})
+    cuisines = mongo.db.cuisines.find_one({"_id": ObjectId("5b2bc74ae7179a5892864640")})
+    return render_template("index.html", allergens=allergens,
+                            cuisines=cuisines)
 
 @app.route("/addrecipe", methods=["GET", "POST"])
 @login_required
@@ -88,6 +107,7 @@ def addrecipe():
     form = AddRecipe()
     # Allergens for dropdown menu (Jinja2)
     allergens = mongo.db.allergens.find_one({"_id": ObjectId("5b2bc45ee7179a5892864417")})
+    cuisines = mongo.db.cuisines.find_one({"_id": ObjectId("5b2bc74ae7179a5892864640")})
     recipes = mongo.db.recipes
     if form.validate_on_submit():
         recipe_exist = recipes.find_one({ "title": form.name.data.lower() })
@@ -107,7 +127,8 @@ def addrecipe():
                 "dislikes": 0,
                 "users_liked": []
             })
-            return redirect(url_for("index", author_id=session["id"]))
+            return redirect(url_for("dashboard", author_id=session["id"], allergens=allergens,
+                                    cuisines=cuisines))
         else:
             flash("The recipe already exist. Please choose another one. ")
             return render_template("addrecipe.html", form=form, allergens=allergens)
@@ -215,7 +236,8 @@ def edit_recipe(recipe_id):
                                 }
                             }
                             )
-            return redirect(url_for("index", author_id=session["id"]))
+            return redirect(url_for("dashboard", author_id=session["id"], allergens=allergens,
+                                    cuisines=cuisines))
         except Exception, e:
             flash(e)
     
@@ -223,7 +245,16 @@ def edit_recipe(recipe_id):
                             the_recipe=the_recipe, cuisines=cuisines,
                             ingredients_str=ingredients_str)
 
-
+@app.route("/delete_recipe/<recipe_id>")
+@login_required
+def delete_recipe(recipe_id):
+    mongo.db.recipes.remove({"_id": ObjectId(recipe_id)})
+    
+    allergens = mongo.db.allergens.find_one({"_id": ObjectId("5b2bc45ee7179a5892864417")})
+    cuisines = mongo.db.cuisines.find_one({"_id": ObjectId("5b2bc74ae7179a5892864640")})
+    
+    return redirect(url_for("dashboard", author_id=session["id"], allergens=allergens,
+                            cuisines=cuisines))
     
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),

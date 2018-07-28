@@ -1,92 +1,90 @@
-{% extends "base.html" %}
-
-{% block title %} Recipe {% endblock %}
+{% extends "base.html" %}{% block title %} Recipe {% endblock %}
 
 {% block content %}
 
-<div class="row justify-content-md-center">
-    <div class="recipe-wrapper col-md-9">
-    
-        <h1 class="recipe-title">{{ recipe.title | capitalize }}</h1><br>
+    <div class="row justify-content-md-center">
+        <div class="recipe-wrapper col-md-9">
         
-        <div class="recipe-info-pad col-sm-12">
-            <div class="recipe-info-pad-item">
-                <p class="recipe-info-pad-text">servings: <span class="recipe-servings-amount">{{ recipe.servings | capitalize }}</span></p>
-            </div>
-            <div class="recipe-info-pad-item margin-sides-130">
-                <p class="recipe-info-pad-text">cuisine: <span class="recipe-cuisine-name">{{ recipe.cuisine | capitalize }}</span></p>
-            </div>
-            <div class="recipe-info-pad-thumbs">
+            <h1 class="recipe-title">{{ recipe.title | capitalize }}</h1><br>
+            
+            <div class="recipe-info-pad col-sm-12">
                 <div class="recipe-info-pad-item">
-                    {% if liked %}
-                        <a href="" class="isDisabled recipe-info-pad-text">
-                            <i class="fa fa-thumbs-up"></i>
-                        </a>
-                    {% else %}
-                        <a href="{{ url_for('like', recipe_id=recipe._id) }}" class="recipe-info-pad-text">
-                            <i class="fa fa-thumbs-up"></i>
-                        </a>
-                    {% endif %}
-                    <span>{{ recipe.likes }}</span>
+                    <p class="recipe-info-pad-text">servings: <span class="recipe-servings-amount">{{ recipe.servings | capitalize }}</span></p>
                 </div>
-                <div class="recipe-info-pad-item">
-                    {% if disliked %}
-                        <a href="" class="isDisabled recipe-info-pad-text">
-                            <i class="fa fa-thumbs-down"></i> 
-                        </a>
-                    {% else %}
-                        <a href="{{ url_for('dislike', recipe_id=recipe._id) }}" class="recipe-info-pad-text">
-                            <i class="fa fa-thumbs-down"></i> 
-                        </a>
-                    {% endif %}
-                    <span>{{ recipe.dislikes }}</span>
+                <div class="recipe-info-pad-item margin-sides-130">
+                    <p class="recipe-info-pad-text">cuisine: <span class="recipe-cuisine-name">{{ recipe.cuisine | capitalize }}</span></p>
+                </div>
+                <div class="recipe-info-pad-thumbs">
+                    <div class="recipe-info-pad-item">
+                        {% if liked %}
+                            <a href="" class="isDisabled recipe-info-pad-text">
+                                <i class="fa fa-thumbs-up"></i>
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('like', recipe_id=recipe._id) }}" class="recipe-info-pad-text">
+                                <i class="fa fa-thumbs-up"></i>
+                            </a>
+                        {% endif %}
+                        <span>{{ recipe.likes }}</span>
+                    </div>
+                    <div class="recipe-info-pad-item">
+                        {% if disliked %}
+                            <a href="" class="isDisabled recipe-info-pad-text">
+                                <i class="fa fa-thumbs-down"></i> 
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('dislike', recipe_id=recipe._id) }}" class="recipe-info-pad-text">
+                                <i class="fa fa-thumbs-down"></i> 
+                            </a>
+                        {% endif %}
+                        <span>{{ recipe.dislikes }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="recipe-cover col-sm-12">
-            <img src="{{ recipe.img_url }}"></img>
-        </div>
-        
-        <div class="recipe-author-wrapper">
-            <div class="recipe-author">
-                <p class="info-text">Recipe author: <span class="recipe-author-name">{{ recipe.author_name }}</span></p>
+            
+            <div class="recipe-cover col-sm-12">
+                <img src="{{ recipe.img_url }}"></img>
             </div>
-        </div>
-        
-        {% if recipe.allergens %}
-            <div class="recipe-allergens-wrapper">
-                <h3 class="recipe-subtitle-allergens">Allergens</h3>
-                <div class="recipe-allergens-list">
+            
+            <div class="recipe-author-wrapper">
+                <div class="recipe-author">
+                    <p class="info-text">Recipe author: <span class="recipe-author-name">{{ recipe.author_name }}</span></p>
+                </div>
+            </div>
+            
+            {% if recipe.allergens %}
+                <div class="recipe-allergens-wrapper">
+                    <h3 class="recipe-subtitle-allergens">Allergens</h3>
+                    <div class="recipe-allergens-list">
+                        <ul>
+                            {% for allergen in recipe.allergens %}
+                            <li>{{ allergen }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="recipe-ingredients-wrapper">
+                <h3 class="recipe-subtitle-ingredients">Ingredients</h3>
+                
+                <div class="recipe-ingredients-list">
                     <ul>
-                        {% for allergen in recipe.allergens %}
-                        <li>{{ allergen }}</li>
+                        {% for ingredient in recipe.ingredients %}
+                            <li>{{ ingredient }}</li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
-        {% endif %}
-        
-        <div class="recipe-ingredients-wrapper">
-            <h3 class="recipe-subtitle-ingredients">Ingredients</h3>
             
-            <div class="recipe-ingredients-list">
-                <ul>
-                    {% for ingredient in recipe.ingredients %}
-                        <li>{{ ingredient }}</li>
-                    {% endfor %}
-                </ul>
+            <div class="recipe-instruction-wrapper">
+                <div class="recipe-instruction">
+                    <h3 class="recipe-subtitle-instruction">Directions</h3>
+                    <p class="recipe-instruction-content">{{ recipe.description | capitalize }}</p>
+                </div>
             </div>
-        </div>
         
-        <div class="recipe-instruction-wrapper">
-            <div class="recipe-instruction">
-                <h3 class="recipe-subtitle-instruction">Directions</h3>
-                <p class="recipe-instruction-content">{{ recipe.description | capitalize }}</p>
-            </div>
         </div>
-    
     </div>
-</div>
 
 {% endblock %}

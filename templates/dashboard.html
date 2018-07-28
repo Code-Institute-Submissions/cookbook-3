@@ -52,6 +52,9 @@
                 </h3>
             </div>
             <div class="card-img-wrap">
+                {% if author_id == recipe.author_id %}
+                <a href="{{ url_for('edit_recipe', recipe_id=recipe._id) }}" type="button" class="btn btn-success btn-sm" role="button">Edit Recipe</a>
+                {% endif %}
                 <img class="" src="{{ recipe.img_url }}" alt="Card image cap">
             </div>
         </div>
