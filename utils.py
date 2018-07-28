@@ -75,7 +75,7 @@ class AddRecipe(FlaskForm):
     image_url = URLField("Image URL", 
                         validators=[InputRequired()],
                         render_kw={"placeholder": "http://..."})
-    cuisine  = SelectField("Cuisines", choices=cuisine, 
+    cuisine  = SelectField("Cuisine", choices=cuisine, 
                             validators=[InputRequired()])
     servings = SelectField("Servings", 
                             choices=[("1", "1"), ("2", "2"), ("3", "3"), ("4", "4"), ("5", "5")], 

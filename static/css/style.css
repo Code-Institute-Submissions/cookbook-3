@@ -21,13 +21,30 @@
   text-decoration: none;
 }
 
+.card-body {
+  width: 70%;
+}
+
+.card-body-thumbs {
+  float: right;
+  color: #909090;
+}
+
+.card-body-thumbs i:first-child {
+  margin-right: 5px;
+}
+
 .card-img-wrap {
-  width: 330px;
+  width: 40%;
   height: 200px;
   overflow: hidden;
 }
 .card-img-wrap img {
   height: 100%;
+}
+.card-img-wrap a {
+  position: absolute;
+  right: 0;
 }
 .card-title {
   margin-top: 20px;
@@ -50,6 +67,10 @@
 }
 .recipe-info-pad-thumbs div:first-child {
   margin-right: 10px;
+}
+
+.recipe-cover img {
+  width:100%;
 }
 
 .recipe-allergens-wrapper,
@@ -80,4 +101,8 @@
 }
 .recipe-subtitle-instruction {
   text-align: center;
+}
+
+form .cancel_edit {
+  margin-right: 20px;
 }

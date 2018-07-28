@@ -6,7 +6,7 @@ from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
-from utils import SignUpForm, LoginForm, AddRecipe, value_in_list, update_author_data_liked_recipe
+from utils import SignUpForm, LoginForm, AddRecipe, value_in_list, update_author_data_liked_recipe, convert_to_son_obj
 
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
@@ -32,8 +32,7 @@ def login_required(f):
 @app.route("/")
 def index():
     recipes = mongo.db.recipes.find()
-    
-    return render_template("index.html", recipes=recipes)
+    return render_template("index.html", recipes=recipes, author_id=session["id"])
 
     
 @app.route('/signup', methods=['GET', 'POST'])
@@ -70,7 +69,7 @@ def login():
             session["username"] = user["username"]
             session["id"] = str(user["_id"])
             flash("You are now logged in")
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("index", author_id=session["id"]))
         else: 
             flash("Wrong username or password")
             return render_template("login.html", form=form)
@@ -81,13 +80,7 @@ def login():
 @login_required
 def logout():
     session.clear()
-    return render_template("index.html")
-    
-@app.route("/dashboard")
-@login_required
-def dashboard():
-    recipes = mongo.db.recipes.find()
-    return render_template("dashboard.html", recipes=recipes)
+    return render_template("index.html", author_id=session["id"])
 
 @app.route("/addrecipe", methods=["GET", "POST"])
 @login_required
@@ -114,7 +107,7 @@ def addrecipe():
                 "dislikes": 0,
                 "users_liked": []
             })
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("index", author_id=session["id"]))
         else:
             flash("The recipe already exist. Please choose another one. ")
             return render_template("addrecipe.html", form=form, allergens=allergens)
@@ -193,6 +186,43 @@ def dislike(recipe_id):
             })
         
     return redirect(url_for("recipe", recipe=current_recipe, recipe_id=recipe_id, disliked=value_in_list(recipe_id, author["liked_recipe"])))
+
+@app.route("/edit_recipe/<recipe_id>", methods=["GET", "POST"])
+@login_required
+def edit_recipe(recipe_id):
+    form = AddRecipe()
+    allergens = mongo.db.allergens.find_one({"_id": ObjectId("5b2bc45ee7179a5892864417")})
+    recipes = mongo.db.recipes
+    the_recipe = recipes.find_one({"_id": ObjectId(recipe_id)})
+    cuisines = mongo.db.cuisines.find_one({"_id": ObjectId("5b2bc74ae7179a5892864640")})
+    ingredients_str = ",".join(the_recipe["ingredients"])
+    
+    if request.method == "POST":
+        try:
+            recipes.update_one({"_id": ObjectId(recipe_id)},
+                            {
+                                "$set": {
+                                    "title": form.name.data.lower(),
+                                    "img_url": form.image_url.data,
+                                    
+                                    "servings": request.form["servings"],
+                                    "cuisine": request.form["cuisine"].lower(),
+                                    
+                                    "ingredients": form.ingredients.data.split(","),
+                                    
+                                    "allergens": request.form.getlist('allergens'),
+                                    "description": request.form["description"].lower()
+                                }
+                            }
+                            )
+            return redirect(url_for("index", author_id=session["id"]))
+        except Exception, e:
+            flash(e)
+    
+    return render_template("editrecipe.html", form=form, allergens=allergens,
+                            the_recipe=the_recipe, cuisines=cuisines,
+                            ingredients_str=ingredients_str)
+
 
     
 if __name__ == "__main__":

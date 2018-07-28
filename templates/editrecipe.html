@@ -1,0 +1,75 @@
+{% extends "base.html" %} {% block title %} Add Recipe {% endblock %} {% block content %}
+
+<div class="row justify-content-md-center">
+    
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+        <ul class=flashes>
+            {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %} {% endwith %}
+    
+    {% from "_formhelpers.html" import render_field %}
+    <form class="col-md-6" action="{{ url_for('edit_recipe', recipe_id=the_recipe._id) }}" method="POST">
+        <h1 class="h2 mb-2 font-weight-normal">Edit Recipe</h1>
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{render_field(form.name, class="form-control", value=the_recipe.title)}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.image_url, class="form-control", value=the_recipe.img_url)}}
+        </div>
+        <div class="form-group">
+            <label for="servings">Servings</label>
+            <select class="form-control" name="servings">
+                {% for i in range(1, 6) %}
+                    {% if i|string == the_recipe.servings %}
+                        <option value="{{i}}" selected>{{i}}</option>
+                    {% else %}
+                        <option value="{{i}}">{{i}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="cuisine">Cuisine</label>
+            <select class="form-control" name="cuisine">
+                {% for key, val in cuisines.names.items() %}
+                    {% if the_recipe.cuisine == val|lower() %}
+                        <option value="{{val}}" selected>{{val}}</option>
+                    {% else %}
+                        <option value="{{val}}">{{val}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            {{render_field(form.ingredients, class="form-control", value=ingredients_str)}}
+        </div>
+        <div class="checkbox-title">
+            <p>Allergens</p>
+            {% for allergen in allergens.names %}
+                {% if allergen in the_recipe.allergens %}
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="{{allergen}}" value="{{allergen}}" name="allergens" checked>
+                        <label class="form-check-label" for="{{allergen}}">{{allergen}}</label>
+                    </div>
+                {% else %}
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="{{allergen}}" value="{{allergen}}" name="allergens">
+                        <label class="form-check-label" for="{{allergen}}">{{allergen}}</label>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            <label for="description">Advanced example:</label>
+            <textarea class="form-control" name="description">{{the_recipe.description}}</textarea>
+        </div>
+        <input type="submit" class="btn btn-success float-right" value="Edit Recipe">
+        <a href="{{ url_for('index') }}" class="btn btn-danger float-right cancel_edit">Cancel</a>
+    </form>
+    
+</div>
+{% endblock %}
