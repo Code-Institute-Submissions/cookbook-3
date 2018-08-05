@@ -12,6 +12,11 @@
 .index-content {
   margin-top: 15px;
 }
+.form-inline .filter_btn {
+  margin-left: 10px;
+  padding-left: 25px;
+  padding-right: 25px;
+}
 
 .blog-header {
   line-height: 1;
@@ -107,4 +112,30 @@
 
 form .cancel_edit {
   margin-right: 20px;
+}
+
+
+@media only screen and (max-width: 425px) {
+  .card-body {
+    width: 100%;
+    text-align: center;
+  }
+  .text-primary {
+    float: left;
+  }
+  .card-img-wrap {
+    width: 100%;
+    text-align: center;
+  }
+  .blog-header-logo {
+    font-size: 25px;
+  }
+  form .edit_recipe_btn,
+  form .cancel_edit,
+  form .cancel_edit {
+    padding: 3px 6px;
+  }
+  form .cancel_edit {
+    margin-right: 10px;
+  }
 }

@@ -61,20 +61,64 @@ def prev_pagination(offset):
                                 allergens=allergens, cuisines=cuisines, offset=offset,
                                 recipes_total=recipes_total)    
 
+@app.route("/filter", methods=["POST", "GET"])
+def filter():
+    offset = 1
+    recipes_total = mongo.db.recipes.find().count()
+    recipes = mongo.db.recipes.find()
+    allergens = mongo.db.allergens.find_one({"_id": ObjectId("5b2bc45ee7179a5892864417")})
+    cuisines = mongo.db.cuisines.find_one({"_id": ObjectId("5b2bc74ae7179a5892864640")})
+    the_allergen = ""
+    
+    if request.method == "POST":
+        the_cuisine = request.form["cuisines"].lower()
+        the_allergen = request.form["allergens"].lower()
+        
+        if the_cuisine != "":
+            recipes = mongo.db.recipes.find({
+                                            "allergens": { "$not": { "$in": [the_allergen] } },
+                                            "cuisine": the_cuisine
+                                            })
+                                            
+            recipes_total = mongo.db.recipes.find({
+                                            "allergens": { "$not": { "$in": [the_allergen] } },
+                                            "cuisine": the_cuisine
+                                            }).count()
+        else:
+            recipes = mongo.db.recipes.find({
+                                            "allergens": { "$not": { "$in": [the_allergen] } }
+                                            })
+            recipes_total = mongo.db.recipes.find({
+                                            "allergens": { "$not": { "$in": [the_allergen] } }
+                                            }).count()
+        if "logged_in" in session: 
+            direction = "dashboard.html"
+            session_status = True
+        else:
+            direction = "index.html"
+            session_status = False
+            
+        return render_template(direction , recipes=recipes.limit(6),
+                            allergens=allergens, cuisines=cuisines, offset=offset,
+                            recipes_total=recipes_total, the_cuisine=the_cuisine,
+                            the_allergen=the_allergen, session=session_status)
+    
+
 @app.route("/", methods=["POST", "GET"])
 def index():
     offset = 1
     recipes_total = mongo.db.recipes.find().count()
-    recipes = mongo.db.recipes.find().limit(6)
+    recipes = mongo.db.recipes.find()
     allergens = mongo.db.allergens.find_one({"_id": ObjectId("5b2bc45ee7179a5892864417")})
     cuisines = mongo.db.cuisines.find_one({"_id": ObjectId("5b2bc74ae7179a5892864640")})
+
     
-    return render_template("index.html", recipes=recipes,
+    return render_template("index.html", recipes=recipes.limit(6),
                             allergens=allergens, cuisines=cuisines, offset=offset,
                             recipes_total=recipes_total)
 
 
-@app.route("/dashboard")
+@app.route("/dashboard", methods=["POST", "GET"])
 def dashboard():
     offset = 1
     recipes_total = mongo.db.recipes.find().count()

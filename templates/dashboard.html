@@ -6,10 +6,19 @@
 
 <div class="nav-scroller py-1 mb-2">
         <nav class="nav justify-content-between">
-            <form class="form-inline">
+            <form class="form-inline" action="{{url_for('filter')}}" method="POST">
                 <label class="my-1 mr-2" for="allergens">Allergens</label>
                 <select class="custom-select my-1 mr-sm-2" name="allergens">
-                    <option selected>Choose...</option>
+                    
+                    {%if request.method == "POST"%}
+                        {% if the_allergen != "" %}
+                            <option value="{{the_allergen}}" selected>{{the_allergen}}</option>
+                        {% else %}
+                            <option value="" selected>Exclude...</option>
+                        {% endif %}
+                    {% else %}
+                        <option value="" selected>Exclude...</option>
+                    {% endif %}
                     {% for allergen in allergens.names %}
                         <option value="{{allergen}}">{{allergen}}</option>
                     {% endfor %}
@@ -17,12 +26,25 @@
                 
                 <label class="my-1 mr-2" for="allergens">Cuisine</label>
                 <select class="custom-select my-1 mr-sm-2" name="cuisines">
-                    <option selected>Choose...</option>
+                    {%if request.method == "POST"%}
+                        {% if the_cuisine != "" %}
+                            <option value="{{the_cuisine}}" selected>{{the_cuisine}}</option>
+                        {% else %}
+                            <option value="" selected>Choose...</option>
+                        {% endif %}
+                    {% else %}
+                        <option value="" selected>Choose...</option>
+                    {% endif %}
                     {% for cuisine in cuisines.names %}
                         <option value="{{cuisine}}">{{cuisine}}</option>
                     {% endfor %}
                 </select>
-                <button type="submit" class="btn btn-primary my-1">Filter</button>
+                {% if session %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary float-left">Clear Filter</a>
+                {% else %}
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary float-left">Clear Filter</a>
+                {% endif %}
+                <button type="submit" class="btn btn-primary my-1 filter_btn">Filter</button>
             </form>
         </nav>
 </div>
