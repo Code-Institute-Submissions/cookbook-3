@@ -312,27 +312,24 @@ def edit_recipe(recipe_id):
     ingredients_str = ",".join(the_recipe["ingredients"])
     
     if request.method == "POST":
-        try:
-            recipes.update_one({"_id": ObjectId(recipe_id)},
-                            {
-                                "$set": {
-                                    "title": form.name.data.lower(),
-                                    "img_url": form.image_url.data,
-                                    
-                                    "servings": request.form["servings"],
-                                    "cuisine": request.form["cuisine"].lower(),
-                                    
-                                    "ingredients": form.ingredients.data.split(","),
-                                    
-                                    "allergens": request.form.getlist('allergens'),
-                                    "description": request.form["description"].lower()
-                                }
+        recipes.update_one({"_id": ObjectId(recipe_id)},
+                        {
+                            "$set": {
+                                "title": form.name.data.lower(),
+                                "img_url": form.image_url.data,
+                                
+                                "servings": request.form["servings"],
+                                "cuisine": request.form["cuisine"].lower(),
+                                
+                                "ingredients": form.ingredients.data.split(","),
+                                
+                                "allergens": request.form.getlist('allergens'),
+                                "description": request.form["description"].lower()
                             }
-                            )
-            return redirect(url_for("dashboard", author_id=session["id"], allergens=allergens,
-                                    cuisines=cuisines))
-        except Exception, e:
-            flash(e)
+                        }
+                        )
+        return redirect(url_for("dashboard", author_id=session["id"], allergens=allergens,
+                                cuisines=cuisines))
     
     return render_template("editrecipe.html", form=form, allergens=allergens,
                             the_recipe=the_recipe, cuisines=cuisines,
