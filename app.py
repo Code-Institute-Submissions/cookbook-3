@@ -70,6 +70,7 @@ def filter():
     allergens = mongo.db.allergens.find_one({"_id": ObjectId("5b2bc45ee7179a5892864417")})
     cuisines = mongo.db.cuisines.find_one({"_id": ObjectId("5b2bc74ae7179a5892864640")})
     the_allergen = ""
+    session_status = False
     
     if request.method == "POST":
         the_cuisine = request.form["cuisines"].lower()
