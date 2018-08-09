@@ -8,7 +8,7 @@
         <nav class="nav justify-content-between">
             <form class="form-inline" action="{{url_for('filter')}}" method="POST">
                 <label class="my-1 mr-2" for="allergens">Allergens</label>
-                <select class="custom-select my-1 mr-sm-2" name="allergens">
+                <select class="custom-select my-1 mr-sm-2 filter-drop-down-allegrens" name="allergens">
                     
                     {%if request.method == "POST"%}
                         {% if the_allergen != "" %}
@@ -24,7 +24,7 @@
                     {% endfor %}
                 </select>
                 
-                <label class="my-1 mr-2" for="allergens">Cuisine</label>
+                <label class="my-1 mr-2 ml-3" for="allergens">Cuisine</label>
                 <select class="custom-select my-1 mr-sm-2" name="cuisines">
                     {%if request.method == "POST"%}
                         {% if the_cuisine != "" %}
@@ -40,9 +40,9 @@
                     {% endfor %}
                 </select>
                 {% if session %}
-                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary float-left">Clear Filter</a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary float-left filter-clear-btn">Clear Filter</a>
                 {% else %}
-                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary float-left">Clear Filter</a>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary float-left filter-clear-btn">Clear Filter</a>
                 {% endif %}
                 <button type="submit" class="btn btn-primary my-1 filter_btn">Filter</button>
             </form>
@@ -63,22 +63,24 @@
     
     {% for recipe in recipes %}
     <div class="col-sm-12 col-md-6">
-        <div class="card flex-md-row mb-4 box-shadow h-md-250">
-            <div class="card-body">
-                <strong class="d-inline-block mb-2 text-primary">{{ recipe.cuisine | capitalize }}</strong>
-                <div class="card-body-thumbs">
-                    <i class="fa fa-thumbs-up">{{ recipe.likes }}</i>
-                    <i class="fa fa-thumbs-down">{{ recipe.dislikes }}</i>
+        <a href="{{ url_for('recipe', recipe_id=recipe._id) }}">
+            <div class="card flex-md-row mb-4 box-shadow h-md-250">
+                <div class="card-body">
+                    <strong class="d-inline-block mb-2 text-primary">{{ recipe.cuisine | capitalize }}</strong>
+                    <div class="card-body-thumbs">
+                        <i class="fa fa-thumbs-up">{{ recipe.likes }}</i>
+                        <i class="fa fa-thumbs-down">{{ recipe.dislikes }}</i>
+                    </div>
+                    
+                    <h3 class="card-title">
+                        <p class="text-dark">{{ recipe.title | capitalize }}</p>
+                    </h3>
                 </div>
-                
-                <h3 class="card-title">
-                    <a class="text-dark" href="{{ url_for('recipe', recipe_id=recipe._id) }}">{{ recipe.title | capitalize }}</a>
-                </h3>
+                <div class="card-img-wrap">
+                    <img class="" src="{{ recipe.img_url }}" alt="Card image cap">
+                </div>
             </div>
-            <div class="card-img-wrap">
-                <img class="" src="{{ recipe.img_url }}" alt="Card image cap">
-            </div>
-        </div>
+        </a>
     </div>
     
     {% endfor %}

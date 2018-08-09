@@ -6,7 +6,8 @@ from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
-from utils import SignUpForm, LoginForm, AddRecipe, value_in_list, update_author_data_liked_recipe, convert_to_son_obj
+from forms import SignUpForm, LoginForm, AddRecipe
+from utils import value_in_list, update_author_data_liked_recipe, convert_to_son_obj, update_author_data_disliked_recipe
 
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
@@ -187,7 +188,7 @@ def logout():
     allergens = mongo.db.allergens.find_one({"_id": ObjectId("5b2bc45ee7179a5892864417")})
     cuisines = mongo.db.cuisines.find_one({"_id": ObjectId("5b2bc74ae7179a5892864640")})
     
-    return render_template("index.html", recipes=recipes,
+    return render_template("index.html", recipes=recipes.limit(6),
                             allergens=allergens, cuisines=cuisines, offset=offset,
                             recipes_total=recipes_total)
 
@@ -229,15 +230,22 @@ def addrecipe():
     return render_template("addrecipe.html", form=form, allergens=allergens)
     
 @app.route("/recipe/<recipe_id>")
-@login_required
 def recipe(recipe_id):
     recipes = mongo.db.recipes
     current_recipe = recipes.find_one({"_id": ObjectId(recipe_id)})
-    author = mongo.db.authors.find_one({"_id": ObjectId(session["id"])})
+    the_author = mongo.db.authors.find_one({"_id": ObjectId(current_recipe["author_id"])})
+    
+    logged_in = False
+    
+    if "logged_in" in session:
+        logged_in = True
+    else:
+        logged_in = False
     
     return render_template("recipe.html", recipe=current_recipe, 
-                    liked=value_in_list(recipe_id, author["disliked_recipe"]), 
-                    disliked=value_in_list(recipe_id, author["liked_recipe"]))
+                    liked=value_in_list(recipe_id, the_author["disliked_recipe"]), 
+                    disliked=value_in_list(recipe_id, the_author["liked_recipe"]),
+                    the_author=the_author, session=logged_in)
     
 @app.route("/recipe/like/<recipe_id>")
 @login_required
@@ -249,7 +257,10 @@ def like(recipe_id):
     author = authors.find_one({"_id": ObjectId(session["id"])})
     
     if str(session["id"]) in current_recipe["users_liked"] and current_recipe["likes"] > 0:
-        update_author_data_liked_recipe(authors, session["id"], "$pull", recipe_id)
+        authors.update({"_id": ObjectId(session["id"])},
+                {
+                   "$pull": {"liked_recipe": recipe_id}
+                })
         
         recipes.update(
             {"_id": ObjectId(recipe_id)},
@@ -280,26 +291,28 @@ def dislike(recipe_id):
     authors = mongo.db.authors
     author = authors.find_one({"_id": ObjectId(session["id"])})
     
-    if str(session["id"]) in current_recipe["users_liked"] and current_recipe["dislikes"] > 0:
-        update_author_data_liked_recipe(authors, session["id"], "$pull", recipe_id)
+    if str(session["id"]) in current_recipe["disliked_recipe"] and current_recipe["dislikes"] > 0:
+        update_author_data_disliked_recipe(authors, session["id"], "$pull", recipe_id)
         
         recipes.update(
             {"_id": ObjectId(recipe_id)},
             { 
                 '$inc': {"dislikes": -1},
-                "$pull": {"users_liked": session["id"]}
+                "$pull": {"disliked_recipe": session["id"]}
             })
     else:
-        update_author_data_liked_recipe(authors, session["id"], "$addToSet", recipe_id)
+        update_author_data_disliked_recipe(authors, session["id"], "$addToSet", recipe_id)
         
         recipes.update(
             {"_id": ObjectId(recipe_id)},
             { 
                 '$inc': {"dislikes": 1},
-                "$addToSet": {"users_liked": session["id"]}
+                "$addToSet": {"disliked_recipe": session["id"]}
             })
         
-    return redirect(url_for("recipe", recipe=current_recipe, recipe_id=recipe_id, disliked=value_in_list(recipe_id, author["liked_recipe"])))
+    return redirect(url_for("recipe", recipe=current_recipe, recipe_id=recipe_id, 
+                            liked=value_in_list(recipe_id, author["disliked_recipe"]),
+                            disliked=value_in_list(recipe_id, author["liked_recipe"])))
 
 @app.route("/edit_recipe/<recipe_id>", methods=["GET", "POST"])
 @login_required

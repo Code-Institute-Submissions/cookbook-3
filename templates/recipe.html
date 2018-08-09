@@ -14,6 +14,25 @@
                 <div class="recipe-info-pad-item margin-sides-130">
                     <p class="recipe-info-pad-text">cuisine: <span class="recipe-cuisine-name">{{ recipe.cuisine | capitalize }}</span></p>
                 </div>
+                
+                {% if not session %}
+                
+                <div class="recipe-info-pad-thumbs">
+                    <div class="recipe-info-pad-item">
+                            <a href="" class="isDisabled recipe-info-pad-text">
+                                <i class="fa fa-thumbs-up"></i>
+                            </a>
+                        <span>{{ recipe.likes }}</span>
+                    </div>
+                    <div class="recipe-info-pad-item">
+                            <a href="" class="isDisabled recipe-info-pad-text">
+                                <i class="fa fa-thumbs-down"></i> 
+                            </a>
+                        <span>{{ recipe.dislikes }}</span>
+                    </div>
+                </div>
+                
+                {% else %}
                 <div class="recipe-info-pad-thumbs">
                     <div class="recipe-info-pad-item">
                         {% if liked %}
@@ -40,6 +59,7 @@
                         <span>{{ recipe.dislikes }}</span>
                     </div>
                 </div>
+                {% endif %}
             </div>
             
             <div class="recipe-cover col-sm-12">
@@ -48,7 +68,7 @@
             
             <div class="recipe-author-wrapper">
                 <div class="recipe-author">
-                    <p class="info-text">Recipe author: <span class="recipe-author-name">{{ recipe.author_name }}</span></p>
+                    <p class="info-text">Recipe author: <span class="recipe-author-name">{{ recipe.author_name }} ( {{ the_author.contry }} )</span></p>
                 </div>
             </div>
             

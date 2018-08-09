@@ -30,10 +30,22 @@
   text-decoration: none;
 }
 
+.card-wrap-a {
+  margin: 0;
+  padding: 0;
+  width: 70%;
+  height: 100%;
+}
+
 .card-body {
   width: 70%;
 }
-.card-body-thumbs {
+.card-body-100 {
+  width: 100%;
+  flex: 1 1 auto;
+  padding: 1.25rem;
+}
+.card-body-thumbs{
   float: right;
   color: #909090;
 }
@@ -49,7 +61,7 @@
 .card-img-wrap img {
   height: 100%;
 }
-.card-img-wrap a {
+.card-img-wrap .edit-recipe-btn {
   position: absolute;
   right: 0;
 }
@@ -114,11 +126,49 @@ form .cancel_edit {
   margin-right: 20px;
 }
 
+.filter-drop-down-allegrens {
+  margin-right: 10px;
+}
+.filter-clear-btn {
+  margin-left: 20px;
+}
+
+footer {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #e5e5e5;
+}
+
+footer>p {
+  padding: 35px 0 35px 20px ;
+  line-height: 10px;
+  margin-bottom: 0;
+  color: #6c757d;
+}
+
+.form-addrecipe,
+.form-login,
+.form-signup {
+  margin-bottom: 20px;
+  padding-top: 30px;
+}
+
+.row-login,
+.row-signup {
+  height: calc(100vh - 149px);
+}
+
+
 
 @media only screen and (max-width: 425px) {
-  .card-body {
+  .card-body,
+  .card-body-100{
     width: 100%;
     text-align: center;
+  }
+  .card-wrap-a {
+    width: 100%;
   }
   .text-primary {
     float: left;
@@ -137,5 +187,18 @@ form .cancel_edit {
   }
   form .cancel_edit {
     margin-right: 10px;
+  }
+  
+  .filter-clear-btn {
+    margin-left: 0;
+  }
+  
+  .recipe-info-pad-item {
+    margin: 10px;
+  }
+  
+  footer>p {
+    padding: 27px 0 35px 20px;
+    line-height: 20px;
   }
 }
