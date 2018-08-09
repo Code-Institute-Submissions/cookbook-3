@@ -234,18 +234,21 @@ def recipe(recipe_id):
     recipes = mongo.db.recipes
     current_recipe = recipes.find_one({"_id": ObjectId(recipe_id)})
     the_author = mongo.db.authors.find_one({"_id": ObjectId(current_recipe["author_id"])})
-    
+    authors = mongo.db.authors
+    author = ""
     logged_in = False
     
     if "logged_in" in session:
         logged_in = True
+        author = authors.find_one({"_id": ObjectId(session["id"])})
+        return render_template("recipe.html", recipe=current_recipe, 
+                    liked=value_in_list(recipe_id, author["disliked_recipe"]), 
+                    disliked=value_in_list(recipe_id, author["liked_recipe"]),
+                    the_author=the_author, session=logged_in)
     else:
         logged_in = False
-    
-    return render_template("recipe.html", recipe=current_recipe, 
-                    liked=value_in_list(recipe_id, the_author["disliked_recipe"]), 
-                    disliked=value_in_list(recipe_id, the_author["liked_recipe"]),
-                    the_author=the_author, session=logged_in)
+        return render_template("recipe.html", recipe=current_recipe, liked="", 
+                        disliked="", the_author=the_author, session=logged_in)
     
 @app.route("/recipe/like/<recipe_id>")
 @login_required
